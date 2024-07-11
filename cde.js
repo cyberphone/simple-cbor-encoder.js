@@ -311,9 +311,9 @@ function test(description, object, reference) {
 }
 
 let map = {
-  "int": 6,
-  "float": CBOR.Float(50),
-  "bigint": 10000000000000000000000000002n,
+  "int": 6,                   // The Number type MUST in this implementation be a valid JS Integer.
+  "float": CBOR.Float(50),    // Ugly? The number of discrete Float variables are typically few.
+  "bigint": 10000000000000000000000000002n,  // 2n would of course still return 0x02.
   "binary": new Uint8Array([1, 2, 3, 4, -1]),
   "string": "hi there!",
   "bool": true,
