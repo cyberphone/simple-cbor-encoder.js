@@ -41,12 +41,12 @@ class CBOR {
         while (true) {  // "goto" surely beats quirky loop/break/return/flag constructs...
           if (f32 == value) {
             // Nothing was lost during the conversion, F32 or F16 is on the menu.
-            f32exp = ((u8[0] & 0x7f) << 4) + ((u8[1] & 0xf0) >> 4) - 1023 + 127;
+            f32exp = ((u8[0] & 0x7f) << 4) + ((u8[1] & 0xf0) >> 4) - 0x380;
             f32signif = ((u8[1] & 0x0f) << 19) + (u8[2] << 11) + (u8[3] << 3) + (u8[4] >> 5);
             // Very small F32 numbers may require subnormal representation.
             if (f32exp <= 0) {
               // The implicit "1" becomes explicit using subnormal representation.
-              f32signif += 1 << 23;
+              f32signif += 0x800000;
               // Denormalize by shifting right 1-23 positions.
               f32signif >>= (1 - f32exp);
               f32exp = 0;
@@ -58,7 +58,7 @@ class CBOR {
               break;
             }
             // Setup for F16.
-            let f16exp = f32exp - 127 + 15;
+            let f16exp = f32exp - 0x70;
             // Too small or too big for F16, or running into F16 NaN/Infinity space.
             if (f16exp <= -10 || f16exp > 30) {
               break;
@@ -67,7 +67,7 @@ class CBOR {
             // Finally, check if we need to denormalize F16.
             if (f16exp <= 0) {
               // The implicit "1" becomes explicit using subnormal representation.
-              f16signif += 1 << 10;
+              f16signif += 0x400;
               let f16signifSave = f16signif;
               f16signif >>= (1 - f16exp);
               if (f16signifSave != (f16signif << (1 - f16exp))) {
