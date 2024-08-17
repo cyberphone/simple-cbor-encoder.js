@@ -66,7 +66,7 @@ class CBOR {
             let f16signif = f32signif >> 13;
             // Finally, check if we need to denormalize F16.
             if (f16exp <= 0) {
-              if (f16signif & ((1 << (1 - f16exp)) - 1) != 0) {
+              if (f16signif & ((1 << (1 - f16exp)) - 1)) {
                 // Losing bits is not an option, stick to F32.
                 break;
               }
