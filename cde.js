@@ -167,17 +167,13 @@ class CBOR {
 
   static #encodeMap = function(object) {
     let result = CBOR.#encodeInteger(0xa0, BigInt(object.size));
-    let keyData = {};
-    let valueData = {};
+    let encPair = {};
     object.forEach((value, key) => {
       let binaryKey = CBOR.encode(key);
-      let hexKey = CBOR.toHex(binaryKey);
-      keyData[hexKey] = binaryKey;
-      valueData[hexKey] = CBOR.encode(value);
+      encPair[CBOR.toHex(binaryKey)] = CBOR.#addArrays(binaryKey, CBOR.encode(value));
     });
-    Object.keys(keyData).sort().forEach((key) => {
-      result = CBOR.#addArrays(result,
-        CBOR.#addArrays(keyData[key], valueData[key]));
+    Object.keys(encPair).sort().forEach((key) => {
+      result = CBOR.#addArrays(result, encPair[key]);
     });
     return result;    
   }
