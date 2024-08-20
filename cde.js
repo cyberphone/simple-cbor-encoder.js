@@ -269,12 +269,8 @@ class CBOR {
       });
       return result;
     } 
-    
-    let map = new Map();
-    Object.keys(object).forEach((key) => {
-      map.set(key, object[key]);
-    });
-    return CBOR.#encodeMap(map);
+    // JavaScript object {}
+    return CBOR.#encodeMap(new Map(Object.entries(object)));
   }
 
   static #oneHex = function(digit) {
