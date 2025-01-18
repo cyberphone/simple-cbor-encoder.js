@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////
-// Minimalist CBOR Deterministic Encoder (CDE) supporting:
+// Minimalist CBOR Deterministic Encoder (CDE) supporting the following subset:
 //   tstr, bstr, int, bigint, float (16/32/64 bit), 
 //   bool, null, and tagged data (CBOR major type 6)
 // 
@@ -9,7 +9,7 @@
 //   Plain vanilla numbers MUST be integers, otherwise an exception will be thrown.
 //   Floating point and Tag objects MUST be wrapped.  See example.
 // 
-// Anders Rundgren, 2024
+// (C) Anders Rundgren, 2024, 2025
 ////////////////////////////////////////////////////////////////////////////////////
 
 class CBOR {
