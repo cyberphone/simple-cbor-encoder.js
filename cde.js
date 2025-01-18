@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // Minimalist CBOR Deterministic Encoder (CDE) supporting:
-//   text string, byte string, integer, bignum, floating point (16/32/64 bit), 
-//   true, false, null, and tagged data (CBOR major type 6)
+//   tstr, bstr, int, bigint, float (16/32/64 bit), 
+//   bool, null, and tagged data (CBOR major type 6)
 // 
 // Compatible with recent versions of node.js and browsers.
 //
@@ -180,7 +180,7 @@ class CBOR {
 
   static #encodeInteger = function(tag, value) {
     let neg = value < 0n;
-    // Only applies to "integer" and "bignum"
+    // Only applies to "int" and "bigint"
     if (neg) {
       value = ~value;
       tag = 0x20;
@@ -191,16 +191,16 @@ class CBOR {
       array.push(Number(value & 255n));
     } while (value >>= 8n);
     let length = array.length;
-    // Prepare for "integer" encoding (1, 2, 4, 8).  Only 3, 5, 6, and 7 need an action.
+    // Prepare for "int" encoding (1, 2, 4, 8).  Only 3, 5, 6, and 7 need an action.
     while (length < 8 && length > 2 && length != 4) {
       array.push(0);
       length++;
     }
     // Make big endian.
     let byteArray = new Uint8Array(array.reverse());
-    // Does this number qualify as a "bignum"?
+    // Does this number qualify as a "bigint"?
     if (length <= 8) {
-      // Apparently not, encode it as "integer".
+      // Apparently not, encode it as "int".
       if (length == 1 && byteArray[0] <= 23) {
         return new Uint8Array([tag | byteArray[0]]);
       }
