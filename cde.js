@@ -8,7 +8,7 @@
 //
 // Usage:
 //   Plain vanilla numbers MUST be integers, otherwise an exception will be thrown.
-//   Floating point and Tag objects MUST be wrapped.  See example.
+//   Floating point, Tag, and Simple objects MUST be wrapped.  See example.
 // 
 // (C) Anders Rundgren, 2024, 2025
 ////////////////////////////////////////////////////////////////////////////////////
