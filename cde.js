@@ -1,7 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // Minimalist CBOR Deterministic Encoder (CDE) supporting the following subset:
 //   tstr, bstr, int, bigint, float (16/32/64 bit), 
-//   bool, null, and tagged data (CBOR major type 6)
+//   bool, null, tagged data (CBOR major type 6), and
+//   simple (CBOR major type 7).
 // 
 // Compatible with recent versions of node.js and browsers.
 //
@@ -128,6 +129,23 @@ class CBOR {
     }
   }
 
+  // Simple wrapper
+  static Simple = class {
+
+    #encoded;
+
+    constructor(value) {
+      if (!Number.isSafeInteger(value) || value < 0 || value > 255 || (value > 23 && value < 32)) {
+        CBOR.#error('Invalid simple argument: ' + value);
+      }
+      this.#encoded = CBOR.#encodeInteger(0xe0, BigInt(value));
+    }
+
+    encode = function() {
+      return this.#encoded;
+    }
+  }
+
   // The Proxy concept enables checks for invocation by "new" and number of arguments.
   static #handler = class {
 
@@ -149,6 +167,7 @@ class CBOR {
 
   static Float = new Proxy(CBOR.Float, new CBOR.#handler(1));
   static Tag = new Proxy(CBOR.Tag, new CBOR.#handler(2));
+  static Simple = new Proxy(CBOR.Simple, new CBOR.#handler(1));
 
   static #addArrays = function(a, b) {
     let result = new Uint8Array(a.length + b.length);
@@ -226,7 +245,8 @@ class CBOR {
       return new Uint8Array([0xf6]);
     }
 
-    if (object instanceof CBOR.Float || object instanceof CBOR.Tag) {
+    if (object instanceof CBOR.Float ||
+        object instanceof CBOR.Tag || object instanceof CBOR.Simple) {
       return object.encode();
     }
 
@@ -308,6 +328,7 @@ let map = {
   "bigint": 10000000000000000000000000002n,  // 2n would of course still return 0x02.
   "binary": new Uint8Array([1, 2, 3, 4, -1]),
   "string": "hi there!",
+  "simple": CBOR.Simple(59),
   "bool": true,
   "null": null,
   "jmap": new Map()  // The more advanced map, permitting arbitrary key expressions.
@@ -316,10 +337,11 @@ let map = {
   "tag": CBOR.Tag(6789n, {"key": "value"}),
   "array": [4, "str", CBOR.Float(Number.NaN), CBOR.Float(0.333333333333333), false]
 }
-test("General CBOR", map, 'aa63696e740663746167d91a85a1636b65796576616c75656462\
+test("General CBOR", map, 'ab63696e740663746167d91a85a1636b65796576616c75656462\
 6f6f6cf5646a6d6170a201636f6e6503657468726565646e756c6cf665617272617985046373747\
 2f97e00fb3fd555555555554ff465666c6f6174f9524066626967696e74c24c204fce5e3e250261\
-100000026662696e6172794501020304ff66737472696e6769686920746865726521');
+100000026662696e6172794501020304ff6673696d706c65f83b66737472696e676968692074686\
+5726521');
 
 // Read a single data item.
 test("Float data item", map.float, 'f95240');
@@ -328,10 +350,11 @@ delete map.float;
 
 // Add a new key and value.
 map.jmap.set(-1, CBOR.Float(0.3));
-test("Transformed CBOR", map, 'a963696e740663746167d91a85a1636b65796576616c7565\
+test("Transformed CBOR", map, 'aa63696e740663746167d91a85a1636b65796576616c7565\
 64626f6f6cf5646a6d6170a301636f6e650365746872656520fb3fd3333333333333646e756c6cf\
 6656172726179850463737472f97e00fb3fd555555555554ff466626967696e74c24c204fce5e3e\
-250261100000026662696e6172794501020304ff66737472696e6769686920746865726521');
+250261100000026662696e6172794501020304ff6673696d706c65f83b66737472696e676968692\
+0746865726521');
 
 let floats = [
   0.0,
