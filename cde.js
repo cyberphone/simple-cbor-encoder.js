@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////
-// Minimalist CBOR Deterministic Encoder (CDE) supporting the following subset:
+// Minimalist CBOR encoder supporting the CBOR::Core primitives:
 //   tstr, bstr, int, bigint, float (16/32/64 bit), 
 //   bool, null, tagged data (CBOR major type 6), and
 //   simple (CBOR major type 7).
