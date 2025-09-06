@@ -19,11 +19,9 @@ class CBOR {
    static Float = class {
 
     #encoded;
-    #tag;
 
     constructor(value) {
       // Begin catching the F16 edge cases.
-      this.#tag = 0xf9;
       if (Number.isNaN(value)) {
         this.#encoded = CBOR.#int16ToByteArray(0x7e00);
       } else if (!Number.isFinite(value)) {
@@ -88,14 +86,12 @@ class CBOR {
           } else {
             // Converting value to F32 returned a truncated result.
             // Full 64-bit representation is required.
-            this.#tag = 0xfb;
             this.#encoded = u8;
           }
           // Common F16 and F64 return point.
           return;
         }
         // Broken loop: 32 bits are apparently needed for maintaining magnitude and precision.
-        this.#tag = 0xfa;
         let f32bin =
             // Put sign bit in position. Why not << 24?  JS shift doesn't work above 2^31...
             ((u8[0] & 0x80) * 0x1000000) +
@@ -109,7 +105,7 @@ class CBOR {
     }
 
     encode = function() {
-      return CBOR.#addArrays(new Uint8Array([this.#tag]), this.#encoded);
+      return CBOR.#addArrays(new Uint8Array([(this.#encoded.length >> 2) + 0xf9]), this.#encoded);
     }
   }
 
