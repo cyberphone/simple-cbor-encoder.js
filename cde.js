@@ -34,9 +34,8 @@ class CBOR {
         // It is apparently a genuine (non-zero) number.
         // The following code depends on that Math.fround works as expected.
         let f32 = Math.fround(value);
-        const buffer = new ArrayBuffer(8);
-        new DataView(buffer).setFloat64(0, value, false);
-        const u8 = new Uint8Array(buffer);
+        const u8 = new Uint8Array(8);
+        new DataView(u8.buffer, 0, 8).setFloat64(0, value, false);
         let f32exp;
         let f32signif;
         while (true) {  // "goto" surely beats quirky loop/break/return/flag constructs...
